@@ -1,7 +1,8 @@
                                  Genode and RISC OS integration.
-                           Runninng two full systems at the same time
-                                    on different cpu cores.
                                                                                                           
+This is the story of
+running two full systems at the same time on different cpu cores.
+
 I have for quite some time tinkered with the fact that each core in a ARM cpu is indeed a full cpu.
 Each core has a own MMU and of course a PC. When I started porting RISC OS to RK3399 , a Rockchip SoC,
 I wanted it to run on the A72 cpu. RK3399 have a cpu cluster with  A53 (4 cores) and A72 (2 cores).
