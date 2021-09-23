@@ -23,6 +23,7 @@ The second copy of RISC OS started at the same time as the first, both competing
 
 Enough about the RISC OS effort. When I had the basics up and running I did the same for RISC OS 
 and NetBSD, allowed NetBSD run in a window on RISC OS desktop.
+
 [image netbsd]
 
 So how does Genode fit into all this?
