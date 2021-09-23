@@ -1,0 +1,7 @@
+Michel Grunditz is a RISC OS developer. His main tasks
+is porting RISC OS to new ARM32 platforms. His connection
+to Genode is the interest in bringing up Genode on new
+platforms and doing RISC OS/ Genode integration.
+
+*Company* [https://www.riscosopen.org - RISC OS Open]
+*Company* [https://www.riscosdev.com/ - RISC OS Develepments ]
