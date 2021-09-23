@@ -4,4 +4,4 @@ to Genode is the interest in bringing up Genode on new
 platforms and doing RISC OS/ Genode integration.
 
 
-*Company* [https://www.riscosdev.com/ - RISC OS Develepments ]
+*Company* [https://www.riscosdev.com/ - RISC OS Developments ]
