@@ -55,8 +55,8 @@ In my newly created syscall I could do the CPU ON call. I decided to keep the fi
 layout, so I set the entrypoint for the CPU ON call to the address where RISC OS would live.
 
 Next step was to get RISC OS in there. Two steps was needed:
-1) Get the RISC OS ROM into Genode image.
-2) Launch the second core in aarch32 mode.
+# Get the RISC OS ROM into Genode image.
+# Launch the second core in aarch32 mode.
 
 I made a small piece of code that switched it to aarch32 and assembled it to a pure binary 
 and did like this
@@ -76,9 +76,9 @@ It did! I had started a completely self hosting os from Genode.
 Running on uart wasn't optimal , so I had a look in the i.MX8M manual and found the "message" unit.
 
 To make this text shorter:
-1, I did a modification to RISC OS debug HAL to  use the message unit to send and receive data.
-2, I started to work from the terminal example in Genode
-3, Implemented support for the message unit in my little program. The stdoout and -in was connected to the message unit.
+# I did a modification to RISC OS debug HAL to  use the message unit to send and receive data.
+# I started to work from the terminal example in Genode
+# Implemented support for the message unit in my little program. The stdoout and -in was connected to the message unit.
 
 That gave me a fully working RISC OS console in Genode!
 
@@ -88,9 +88,9 @@ I also implemented a simple RISC OS kernel module, that talked to Genode and can
 
 Next steps:
 
-Doing the CPU emulation.
-Decide on how to integrate the RISC OS desktop with Genode.
-Possibly running Genode applications ( the browser is a hot candidate) on the RISC OS desktop.
+# Doing the CPU emulation.
+# Decide on how to integrate the RISC OS desktop with Genode.
+# Possibly running Genode applications ( the browser is a hot candidate) on the RISC OS desktop.
 
 I am very busy with the Rockchip port wirh RISC OS , so can't promise any time frame.
 When I have time I would like to bring up Genode on Pinebook Pro. I have started with a little bringup on RockPro64 (RK3399).
