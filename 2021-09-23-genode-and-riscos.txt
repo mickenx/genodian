@@ -67,7 +67,7 @@ and did like this
 Back then I was very unfamiliar with how to load things from Genode file structure. 
 I did a hexdump of the ROM to c header and included it in my Genode program. 
 
-After that I made a mmio map of my wanted locatiom for the ROM and copied the ROM 
+After that I made a mmio map of my wanted location for the ROM and copied the ROM 
 into that location. I could then do my hack for starting the second core.
 
 I was still running RISC OS with uart output. So would it work out of the box now?
