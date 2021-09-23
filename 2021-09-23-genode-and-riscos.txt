@@ -94,6 +94,8 @@ Possibly running Genode applications ( the browser is a hot candidate) on the RI
 I am very busy with the Rockchip port wirh RISC OS , so can't promise any time frame.
 When I have time I would like to bring up Genode on Pinebook Pro. I have started with a little bringup on RockPro64 (RK3399).
 
+[image genoderk]
+
 Thanks for reading! 
 
 
