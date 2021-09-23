@@ -1,43 +1,72 @@
-                    Genode and RISC OS integration.
-                Runninng two full systems at the same time
-                       on different cpu cores.
+                                 Genode and RISC OS integration.
+                           Runninng two full systems at the same time
+                                    on different cpu cores.
                                                                                                           
-I have for quite some time tinkered with the fact that each core in a ARM cpu is indeed a full cpu. Each core has a own MMU and of course a PC. When I started porting RISC OS to RK3399 , a Rockchip SoC, I wanted it to run on the A72 cpu. RK3399 have a cpu cluster with  A53 (4 cores) and A72 (2 cores). The method for starting a new core is by doing a PSCI call. PSCI is implemented in ATF , Arm trusted firmware. ATF is part of most u-boot setups and u-boot is the most common bootloader on ARM platforms. When doing the CPU ON call I realized that the CPU that did the call continued to run after it. In order to stop it I did like this:
+I have for quite some time tinkered with the fact that each core in a ARM cpu is indeed a full cpu.
+Each core has a own MMU and of course a PC. When I started porting RISC OS to RK3399 , a Rockchip SoC,
+I wanted it to run on the A72 cpu. RK3399 have a cpu cluster with  A53 (4 cores) and A72 (2 cores).
+The method for starting a new core is by doing a PSCI call.
+PSCI is implemented in ATF , Arm trusted firmware. ATF is part of most u-boot setups and u-boot 
+is the most common bootloader on ARM platforms. When doing the CPU ON call I realized that the 
+CPU that did the call continued to run after it. In order to stop it I did like this:
 
 !  B .
 
-This finding  gave me a crazy idea. If the cpu wasn't stopped , I could load RISC OS on that as well! I decided pretty quickly to use separate ram areas, so doing the first RISC OS in the lower part of RAM and the second in the higher. So each ROM ,, RISC OS image is called ROM and can indeed live in a ROM!, was altered to use RAM only in the wanted region.  RISC OS HAL  have a feature to display debug printouts on a  UART , and also take input from it. I decided to leave that , making both CPU cores writing to the same UART. First bootup:
+This finding  gave me a crazy idea. If the cpu wasn't stopped , I could load RISC OS on that as well! 
+I decided pretty quickly to use separate ram areas, so doing the first RISC OS in the lower part of 
+RAM and the second in the higher. So each ROM ,, RISC OS image is called ROM and can indeed live 
+in a ROM!, was altered to use RAM only in the wanted region.  RISC OS HAL  have a feature to display
+debug printouts on a  UART , and also take input from it. I decided to leave that , making both CPU
+cores writing to the same UART. First bootup:
 
 The second copy of RISC OS started at the same time as the first, both competing for the UART, so the concept worked!
 
-Enough about the RISC OS effort. When I had the basics up and running I did the same for RISC OS and NetBSD, allowed NetBSD run in a window on RISC OS desktop.
+Enough about the RISC OS effort. When I had the basics up and running I did the same for RISC OS 
+and NetBSD, allowed NetBSD run in a window on RISC OS desktop.
 [image netbsd]
 
 So how does Genode fit into all this?
 
-There are some problems with the future ARM cores. They will end support for aarch32 mode, and RISC OS is very much 32bit. I had been tinkering with Genode some years ago and I decided that Genode was a top candidate to host a aarch32 emulation on aarch64. Genode is perfect for putting together a customized environment. It is afterall a Operating System Framework.
+There are some problems with the future ARM cores. They will end support for aarch32 mode,
+and RISC OS is very much 32bit. I had been tinkering with Genode some years ago and I decided 
+that Genode was a top candidate to host a aarch32 emulation on aarch64. Genode is perfect
+for putting together a customized environment. It is afterall a Operating System Framework.
 
-The emulation is a pretty advanced thing to implement, so I started of with a ARM SoC that Genode supports and to some extent RISC OS as well. The SoC is i.MX8M. First step was to make sure that Genode only uses the first core, that was pretty easy to achieve. After that I needed a way to power up the second core. This was problematic since "userlevel" parts of Genode doesn't allow PSCI calls. Coming from RISC OS world, I am very familiar how ARM cpus works. I figured that Genode contained code somewhere that was running in privileged mode. The question was , how do I get there easily?
+The emulation is a pretty advanced thing to implement, so I started of with a ARM SoC that 
+Genode supports and to some extent RISC OS as well. The SoC is i.MX8M. First step was to 
+make sure that Genode only uses the first core, that was pretty easy to achieve. After that
+I needed a way to power up the second core. This was problematic since "userlevel" parts of
+Genode doesn't allow PSCI calls. Coming from RISC OS world, I am very familiar how ARM 
+cpus works. I figured that Genode contained code somewhere that was running in privileged mode.
+The question was , how do I get there easily?
 
 The very hacky solution was.
 
 ! SVC #0
 
-With a high number as argument. I was right! That gave me a error message printed out on the serial port. From that I could just find the error message and implement a syscall for my high number. I fully understand that THIS is NOT how I should do things in Genode, but the hack will stay until I have time to implement this in a more Genode way .
+With a high number as argument. I was right! 
+That gave me a error message printed out on the serial port. From that I could just find 
+the error message and implement a syscall for my high number. 
+I fully understand that THIS is NOT how I should do things in Genode, but the hack will 
+stay until I have time to implement this in a more Genode way .
 
-In my newly created syscall I could do the CPU ON call. I decided to keep the fixed memory layout, so I set the entrypoint for the CPU ON call to the address where RISC OS would live.
+In my newly created syscall I could do the CPU ON call. I decided to keep the fixed memory
+layout, so I set the entrypoint for the CPU ON call to the address where RISC OS would live.
 
 Next step was to get RISC OS in there. Two steps was needed:
 1) Get the RISC OS ROM into Genode image.
 2) Launch the second core in aarch32 mode.
 
-I made a small piece of code that switched it to aarch32 and assembled it to a pure binary and did like this
+I made a small piece of code that switched it to aarch32 and assembled it to a pure binary 
+and did like this
 
 ! cat ROM >> 32bit
 
-Back then I was very unfamiliar with how to load things from Genode file structure. I did a hexdump of the ROM to c header and included it in my Genode program. 
+Back then I was very unfamiliar with how to load things from Genode file structure. 
+I did a hexdump of the ROM to c header and included it in my Genode program. 
 
-After that I made a mmio map of my wanted locatiom for the ROM and copied the ROM into that location. I could then do my hack for starting the second core.
+After that I made a mmio map of my wanted locatiom for the ROM and copied the ROM 
+into that location. I could then do my hack for starting the second core.
 
 I was still running RISC OS with uart output. So would it work out of the box now?
 
