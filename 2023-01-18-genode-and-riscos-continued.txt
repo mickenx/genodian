@@ -1,0 +1,74 @@
+                    Genode and RISC OS continued
+
+I am a RISC OS user and I love RISC OS. 
+
+I think the most important part of it is the desktop and the applications.
+RISC OS is a bit archaic. It is a single task system, with cooperative
+multitasking windowing system bolted on top of the kernel task. It is
+very fast and runs on a computer with as little as 4 MB of RAM. But it
+has some drawbacks. An application can easily take control over
+the system and do whatever it likes. If using a kernel module it can
+turn off interrupts which means that the kernel stops.
+This makes it a fun system to code on, but it also means no
+security or component isolation.
+
+I think that RISC OS would gain a lot of co-exist with a system like
+Genode.
+
+In my
+[https://genodians.org/mickenx/2021-09-23-genode-and-riscos - previous blog] I made a little list:
+
+# Doing the CPU emulation.
+# Decide on how to integrate the RISC OS desktop with Genode.
+# Possibly running Genode applications ( the browser is a hot candidate) on the RISC OS desktop.
+
+I decided to start with a soc , Rockchip RK3588 , which has a 64bit only cpu.
+It does have a 32bit capable cpu as well , but in this case
+I wanted the big one.
+
+The first task is to get Genode running on it. The u-boot, bootloader, 
+support most hardware, so I thought that it was a quick job and
+indeed it was. The only low level part that didn't work was EL 
+(Exception level) switching in Genode. I guess that u-boot leaves me
+in a cpu state that Genode doesn't expect.The workaround was to start 
+Genode in EL1. That worked and I could work on other tasks, but I realised 
+that in the end the EL switching has to be solved.
+
+Today I solved it by adding register clearing to Genodes startup file.
+
+
+A photo of the new port running:
+_____
+
+
+[image rk3588 40%]
+
+
+
+_____
+
+So I am now moving on to the first task in the list. 32bit emulation.
+I have decided to start with the Unicorn CPU emulator. It is a cpu only
+emulator and it doesn't emulate other hardware. Unicorn sources are built 
+with cmake, which at first gave me a lot of headeach. But then I remembered 
+[https://github.com/nfeske/goa - goa] which can build cmake apps. It was 
+still a bit problematic since the emulator is library based and goa doesn't
+support libraries. I decided to link in my main file, so that the binary 
+would be a standard executable.
+
+After the build structure was sorted and I could try the emulator I realised 
+that a lot of posix functionallity that the emulator relies on isn't in Genode.
+Lucky enough, most of those libc calls is for increased performance. So for now
+I disable them and that makes the emulator working.
+
+Things like cache management needs to be solved, but right now I am happy with
+what I have.
+
+A photo of 32bit ARM BBC BASIC:
+
+[image genodebbc_basic 40%]
+
+The next task in the list, integration , is all about how to interface riscos
+with Genode. I have plan which I will write about in my next blog.
+
+So stay tuned,  more will follow!
