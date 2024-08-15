@@ -1,0 +1,28 @@
+                                     Genode and RISC OS demo
+
+This is the demo I showed on the RISC OS Southwest show this spring. 
+
+It was a complete scenario running with several different components:
+
+# RISC OS running on the second core. It is using a framebuffer window to display the graphics.
+# The Unicorn CPU emulator running BBC Basic and a subset of RISC OS. Complete with graphics.
+
+The RISC OS component uses the message unit on iMX8MQ to do inter core communication. I might say absuse it
+because I use it in a very unsupported way. The keyboard input is done with interrupts and the mouse movement is by pollling. RISC OS uses a fixed memory region as the framebuffer. The Genode part do copy that memory 
+to the graphics window using a neon mem copy. It runs at 60hz , unless there are some heavy load in Genode. There is a RISC OS kernel module that provides a way to get files from Genode.
+At this point RISC OS doesn't have access to any mass storage. I used a RAM disc and copied in a self extracting archive with a basic harddisc install of RISC OS. I then start the RISC OS start sequence (!Boot) and get a full RISC OS experience.
+
+The Unicorn port provides a 32-bit ARM. My code is a mix of ARM code and host code. The main interactive
+part is BBC BASIC. However you can run ARM RISC OS binaries. It is also possible to load RISC OS kernel
+modules, such as the c-library. The RISC OS programs can interact with the Genode graphics window in two 
+ways. Through standard SWIs, syscalls in RISC OS is implemented with SWI handlers, and by accessing the 
+graphics ram directly.
+
+I have put the RISC OS Genode server on GitHub and it is my most hacky code I have ever published! You can
+find it here:
+
+[https://github.com/mickenx/genode-riscos - Genode RISC OS]
+
+Obligatory screenshot:
+
+[image genode-riscos]
